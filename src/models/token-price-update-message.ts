@@ -6,7 +6,7 @@ export const tokenPriceUpdateMessageSchema = z.object({
   symbol: z.string().min(1),
   oldPrice: z.number().nonnegative(),
   newPrice: z.number().nonnegative(),
-  timestamp: z.date()
+  timestamp: z.date(),
 });
 
 // Type derived from the schema
@@ -22,6 +22,6 @@ export function createTokenPriceUpdateMessage(data: {
 }): TokenPriceUpdateMessage {
   return tokenPriceUpdateMessageSchema.parse({
     ...data,
-    timestamp: data.timestamp || new Date()
+    timestamp: data.timestamp || new Date(),
   });
 }

@@ -1,72 +1,66 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToOne, JoinColumn } from 'typeorm';
+import { Chain } from './chain.entity';
+import { Logo } from './logo.entity';
 
 @Entity('tokens')
 export class Token {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id!: string;
 
   @Column({ type: 'bytea' })
-  address: Buffer;
+  address!: Buffer;
 
   @Column({ nullable: true })
-  symbol: string;
+  symbol!: string;
 
   @Column({ nullable: true })
-  name: string;
+  name!: string;
 
   @Column({ type: 'smallint', default: 0 })
-  decimals: number;
+  decimals!: number;
 
   @Column({ default: false })
-  isNative: boolean;
+  isNative!: boolean;
 
   @Column({ type: 'uuid' })
-  chainId: string;
+  chainId!: string;
 
   @Column({ default: false })
-  isProtected: boolean;
+  isProtected!: boolean;
 
   @Column({ nullable: true })
-  lastUpdateAuthor: string;
+  lastUpdateAuthor!: string | null;
 
   @Column({ default: 0 })
-  priority: number;
+  priority!: number;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  timestamp: Date;
+  timestamp!: Date;
 
-  // Denormalized chain data (intentional anti-pattern)
-  @Column({ name: 'chain_id', type: 'uuid' })
-  chain_Id: string;
+  // Normalized relationships
+  @ManyToOne(() => Chain, chain => chain.tokens, { eager: true })
+  @JoinColumn({ name: 'chainId' })
+  chain!: Chain;
 
-  @Column({ name: 'chain_deid', type: 'decimal' })
-  chain_DeId: number;
+  @Column({ type: 'uuid', nullable: true })
+  logoId!: string | null;
 
-  @Column({ name: 'chain_name' })
-  chain_Name: string;
+  @OneToOne(() => Logo, logo => logo.token, { eager: true, nullable: true })
+  @JoinColumn({ name: 'logoId' })
+  logo!: Logo | null;
 
-  @Column({ name: 'chain_isenabled', default: true })
-  chain_IsEnabled: boolean;
-
-  // Denormalized logo data (intentional anti-pattern)
-  @Column({ name: 'logo_id', type: 'uuid' })
-  logo_Id: string;
-
-  @Column({ name: 'logo_tokenid', type: 'uuid', nullable: true })
-  logo_TokenId: string;
-
-  @Column({ name: 'logo_bigrelativepath' })
-  logo_BigRelativePath: string;
-
-  @Column({ name: 'logo_smallrelativepath' })
-  logo_SmallRelativePath: string;
-
-  @Column({ name: 'logo_thumbrelativepath' })
-  logo_ThumbRelativePath: string;
-
-  @Column({ type: 'decimal', precision: 28, scale: 0, default: 0 })
-  price: number;
+  @Column({
+    type: 'decimal',
+    precision: 28,
+    scale: 18,
+    default: 0,
+    transformer: {
+      to: (value: number) => value,
+      from: (value: string) => parseFloat(value),
+    },
+  })
+  price!: number;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  lastPriceUpdate: Date;
+  lastPriceUpdate!: Date;
 }

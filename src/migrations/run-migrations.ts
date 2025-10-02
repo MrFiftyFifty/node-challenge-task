@@ -26,7 +26,7 @@ runMigrations()
     console.log('Migrations completed successfully');
     process.exit(0);
   })
-  .catch((error) => {
+  .catch(error => {
     console.error('Failed to run migrations:', error);
     process.exit(1);
   });
